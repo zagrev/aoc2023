@@ -37,12 +37,13 @@ public class Aoc4
     * <ul>
     * <li>add the card to the output list
     * <li>add 1 additional cards to the output to match the score
-    * <li>process each additional card, adding all the card they win to the list as well.</li>
+    * <li>process each additional card, adding all the card they win to the list as well.
+    * </ul>
     *
     * @param originals
     * @param currentCard
     * @param currentOffset
-    * @return
+    * @return the list of cards includes by the given card
     */
    public List<ScratchCard> processCard(final List<ScratchCard> originals, final ScratchCard currentCard,
          final int currentOffset)
