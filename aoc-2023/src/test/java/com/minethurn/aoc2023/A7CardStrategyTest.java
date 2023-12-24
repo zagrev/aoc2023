@@ -53,6 +53,9 @@ class A7CardStrategyTest
       assertEquals(0, strategy.compareCards('A', 'A'));
    }
 
+   /**
+    * @throws IOException
+    */
    @Test
    public void testCompareHands() throws IOException
    {

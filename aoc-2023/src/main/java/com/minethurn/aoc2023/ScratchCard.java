@@ -66,7 +66,14 @@ public class ScratchCard
       {
          if (winners.contains(num))
          {
-            score += 1;
+            if (score == 0)
+            {
+               score = 1;
+            }
+            else
+            {
+               score <<= 1;
+            }
          }
       }
       return Integer.valueOf(score);

@@ -43,7 +43,7 @@ class Aoc4Test
 
          final List<ScratchCard> allWithDups = app.processCards(cards);
 
-         System.out.println("Aoc4b total = " + allWithDups.size());
+         System.out.println("Aoc4 total = " + allWithDups.size());
          assertEquals(30, allWithDups.size());
       }
 

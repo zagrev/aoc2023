@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 /**
  *
  */
-class Aoc7Test
+class Aoc7bTest
 {
    /** the unit test data */
    String data = """
@@ -34,7 +34,7 @@ class Aoc7Test
    {
       try (var input = new BufferedReader(new StringReader(data)))
       {
-         final var app = new Aoc7();
+         final var app = new Aoc7b();
          app.readInput(input);
 
          final var ranked = app.rank();
@@ -42,24 +42,22 @@ class Aoc7Test
          System.out.println("Ranked = " + ranked);
 
          assertEquals(765, ranked.get(0).getBid());
-         assertEquals(220, ranked.get(1).getBid());
-         assertEquals(28, ranked.get(2).getBid());
-         assertEquals(684, ranked.get(3).getBid());
-         assertEquals(483, ranked.get(4).getBid());
+         assertEquals(28, ranked.get(1).getBid());
+         assertEquals(684, ranked.get(2).getBid());
+         assertEquals(483, ranked.get(3).getBid());
+         assertEquals(220, ranked.get(4).getBid());
       }
    }
 
    /**
     * @throws IOException
     */
-// @ParameterizedTest
-// @CsvSource({ "32T3K, 765", "T55J5, 684", "KK677, 28", "KTJJT, 220", "QQQJA, 483" })
    @Test
    void testReadInputs() throws IOException
    {
       try (var input = new BufferedReader(new StringReader(data)))
       {
-         final var app = new Aoc7();
+         final var app = new Aoc7b();
          app.readInput(input);
 
          assertNotNull(app);
@@ -99,12 +97,12 @@ class Aoc7Test
    {
       try (var input = new BufferedReader(new StringReader(data)))
       {
-         final var app = new Aoc7();
+         final var app = new Aoc7b();
          app.readInput(input);
          app.rank();
 
          final long score = app.calcScore();
-         assertEquals(6440L, score);
+         assertEquals(5905, score);
       }
    }
 }

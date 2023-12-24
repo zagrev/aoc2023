@@ -13,7 +13,7 @@ import java.util.List;
 /**
  *
  */
-public class Aoc7
+public class Aoc7b
 {
    /**
     * @param args
@@ -21,19 +21,19 @@ public class Aoc7
     */
    public static void main(final String[] args) throws IOException
    {
-      final Aoc7 app = new Aoc7();
+      final Aoc7b app = new Aoc7b();
 
-      try (var resource = Aoc7.class.getResourceAsStream("/aoc7-input.txt");
+      try (var resource = Aoc7b.class.getResourceAsStream("/aoc7-input.txt");
             var input = new BufferedReader(new InputStreamReader(resource)))
       {
          app.readInput(input);
          app.rank();
-         System.out.println("Aoc7 = " + app.calcScore());
+         System.out.println("Aoc7b = " + app.calcScore());
       }
    }
 
    /** the strategy to use for this card game */
-   private A7Strategy strategy = new A7CardStrategy();
+   private A7Strategy strategy = new A7JokerCardStrategy();
 
    /** the hands in this game */
    private List<CamelCardHand> hands = new ArrayList<>();

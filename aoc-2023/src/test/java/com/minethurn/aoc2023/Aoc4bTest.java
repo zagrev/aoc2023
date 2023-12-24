@@ -45,7 +45,7 @@ class Aoc4bTest
          final int win5, final int num1, final int num2, final int num3, final int num4, final int num5, final int num6,
          final int num7, final int num8) throws IOException
    {
-      final Aoc4 app = new Aoc4();
+      final Aoc4b app = new Aoc4b();
 
       final var card = app.readCard(line);
 
@@ -83,7 +83,7 @@ class Aoc4bTest
    })
    void testScoring(final String line, final int score) throws IOException
    {
-      final Aoc4 app = new Aoc4();
+      final Aoc4b app = new Aoc4b();
 
       final var card = app.readCard(line);
 
