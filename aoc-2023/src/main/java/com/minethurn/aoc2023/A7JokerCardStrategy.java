@@ -43,6 +43,16 @@ public class A7JokerCardStrategy implements A7Strategy
       }
    }
 
+   /** when a < b */
+   public static final int CARDS_LT = -1;
+   /** when a > b */
+   public static final int CARDS_GT = 1;
+   /** when cards a == b */
+   public static final int CARDS_EQUAL = 0;
+
+   /** by default, sort lowest to highest */
+   private boolean reverseSort = false;
+
    /**
     * @param counts
     * @param i
@@ -62,92 +72,103 @@ public class A7JokerCardStrategy implements A7Strategy
    }
 
    /**
+    * compare the given cards. By default it sorts low to high. If {@link #reverseSort} is {@code true} then it sorts
+    * high to low.
+    *
     * @param c1
     * @param c2
-    * @return 1 if c1 is greater , -1 if c2 is greater, or 0 if c1 = c2
+    * @return the value 0 if x == y;a value less than 0 if x < y; anda value greater than 0 if x > y. If
+    *         {@link #reverseSort} is {@code true}, then the opposite
     */
    public int compareCards(final char c1, final char c2)
    {
-      // deal with jokers before other face cards
+      final var greaterThan = reverseSort ? CARDS_LT : CARDS_GT;
+      final var lessThan = reverseSort ? CARDS_GT : CARDS_LT;
+
+      // deal with Wild cards before other face cards
       if (c1 == 'J')
       {
          if (c2 == 'J')
          {
-            return 0;
+            return CARDS_EQUAL;
          }
-         return -1;
+         return lessThan;
       }
       if (c2 == 'J')
       {
-         return 1;
+         return greaterThan;
       }
 
+      // if c1 is a number and not a face card
       if (Character.isDigit(c1))
       {
-         // if c2 is a number, return the difference between c2 and c1
+         // if c2 is a number, then do numeric compare
          if (Character.isDigit(c2))
          {
-            return c1 - c2;
-         }
-         // if c2 is J, c2 is greater
-         else if (c2 == 'J')
-         {
-            return 1;
+            return c1 > c2 ? greaterThan : c1 < c2 ? lessThan : CARDS_EQUAL;
          }
 
          // if c1 is a number, and c2 is a letter, then c2 is bigger
-         return -1;
+         return lessThan;
       }
 
       // c1 is not a number, so if c2 is, then c1 wins
       if (Character.isDigit(c2))
       {
-         return 1;
+         return greaterThan;
       }
 
-      // ok, so c1 and c2 are face cards
+      // ok, so c1 and c2 are face cards (Wild cards already handled above)
+      var answer = greaterThan;
       switch (c1)
       {
       case 'A':
+         // ace beats all cards except ace
          if (c2 == 'A')
          {
-            return 0;
+            answer = CARDS_EQUAL;
          }
          break;
 
       case 'K':
+         // king < ace, king > all other
          if (c2 == 'A')
          {
-            return -1;
+            answer = lessThan;
          }
          if (c2 == 'K')
          {
-            return 0;
+            answer = CARDS_EQUAL;
          }
          break;
 
       case 'Q':
          if (c2 == 'A' || c2 == 'K')
          {
-            return -1;
+            answer = lessThan;
          }
          if (c2 == 'Q')
          {
-            return 0;
+            answer = CARDS_EQUAL;
          }
          break;
 
       case 'T':
+         // all face cards other than T are greater than T
          if (c2 == 'T')
          {
-            return 0;
+            answer = CARDS_EQUAL;
          }
-         return -1;
+         else
+         {
+            answer = lessThan;
+         }
+         break;
 
       default:
          throw new IllegalArgumentException("Invalid card: :" + c1);
       }
-      return 1;
+      return answer;
    }
 
    /**
@@ -218,7 +239,8 @@ public class A7JokerCardStrategy implements A7Strategy
       // either natural 3, or 2 + 1 wild, or 1 + 2 wild
       // if we have 2 pair + 1 wild, then this is really a full house
       case 3:
-         if (checkCount(counts, 2) > 0)
+         if (checkCount(counts, 3) > 0 && checkCount(counts, 2) > 0 || checkCount(counts, 2) > 1
+               || wilds == 2 && checkCount(counts, 2) > 0)
          {
             return FULL_HOUSE;
          }
@@ -232,13 +254,13 @@ public class A7JokerCardStrategy implements A7Strategy
          }
          return ONE_PAIR;
 
-      // 1 natural, 1 wild
+      // all cards must be natural
       case 1:
          return HIGH_CARD;
 
       default:
          System.err.println("Invalid count of cards");
-         return -1;
+         return CARDS_GT;
       }
    }
 
@@ -277,6 +299,14 @@ public class A7JokerCardStrategy implements A7Strategy
    }
 
    /**
+    * @return the reverseSort
+    */
+   boolean isReverseSort()
+   {
+      return reverseSort;
+   }
+
+   /**
     * @throws UnsupportedEncodingException
     */
    @Override
@@ -298,6 +328,17 @@ public class A7JokerCardStrategy implements A7Strategy
    }
 
    /**
+    * @param reverseSort
+    *           the reverseSort to set
+    */
+   void setReverseSort(final boolean reverseSort)
+   {
+      this.reverseSort = reverseSort;
+   }
+
+   /**
+    * create a sorted version of the handd
+    *
     * @param cards
     * @return the same hand but with the cards sorted by face
     * @throws UnsupportedEncodingException
@@ -318,36 +359,64 @@ public class A7JokerCardStrategy implements A7Strategy
     */
    public int sortHands(final CamelCardHand a, final CamelCardHand b) throws UnsupportedEncodingException
    {
-      final var cards1 = a.getCards();
-      final var cards2 = b.getCards();
+      final var greaterThan = reverseSort ? CARDS_LT : CARDS_GT;
+      final var lessThan = reverseSort ? CARDS_GT : CARDS_LT;
+
+      final var aCards = a.getCards();
+      final var bCards = b.getCards();
 
       // check if the hands have some named type
-      final var aType = getHandType(cards1);
-      final var bType = getHandType(cards2);
-
-      if (aType > bType)
-      {
-         return 1;
-      }
-      else if (bType > aType)
-      {
-         return -1;
-      }
+      final var aType = getHandType(aCards);
+      final var bType = getHandType(bCards);
 
       var rc = 0;
 
-      for (int i = 0; i < cards1.length(); i++)
+      if (aType > bType)
       {
-         final char c1 = cards1.charAt(i);
-         final char c2 = cards2.charAt(i);
-
-         rc = compareCards(c1, c2);
-         if (rc != 0)
-         {
-            return rc;
-         }
+         rc = greaterThan;
       }
+      else if (bType > aType)
+      {
+         rc = lessThan;
+      }
+
+      for (int i = 0; i < aCards.length() && rc == 0; i++)
+      {
+         final char c1 = aCards.charAt(i);
+         final char c2 = bCards.charAt(i);
+
+         rc = compareCards(c1, c2); // compareCards handles sort order here
+      }
+// System.out.println("sortHands: " + aCards + " (" + typeToString(aType) + ") "
+// + (rc == greaterThan ? ">" : rc == lessThan ? "<" : "=") + " " + bCards + " (" + typeToString(bType) + ")");
       return rc;
+   }
+
+   /**
+    * @param type
+    * @return a human readable string for the type
+    */
+   private String typeToString(final int type)
+   {
+      switch (type)
+      {
+      case 6:
+         return "five";
+      case 5:
+         return "four";
+      case 4:
+         return "full";
+      case 3:
+         return "three";
+      case 2:
+         return "2pair";
+      case 1:
+         return "pair";
+      case 0:
+         return "high";
+      default:
+         return "unknown - " + type;
+      }
    }
 
 }
